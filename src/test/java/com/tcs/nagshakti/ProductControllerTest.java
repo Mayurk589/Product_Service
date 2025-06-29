@@ -20,33 +20,33 @@ import com.tcs.tcskart.service.ProductService;
 @WebMvcTest(ProductController.class)
 
 public class ProductControllerTest {
-	@Autowired
-	private MockMvc mockMvc;
-	@MockBean
-	private ProductService accountService;
-	@Autowired
-	private ObjectMapper objectMapper;
-	Product mockProduct;
-	@BeforeEach
-	void setUp() throws ParseException {
-	
-		mockProduct.setName("Oppo Mobile");
-		mockProduct.setDescription("Good Mobile");
-		mockProduct.setPrice(19999.99);
-		mockProduct.setStockQuantity(20);
-		mockProduct.setCategory("Electronics");
-		mockProduct.setCreatedAt(LocalDateTime.now());
-		mockProduct.setImages(null);
-
-	}
-//	@Test
-//	void test() throws JsonProcessingException, Exception {
-//		Product mockProduct = new Product("Shri@2000", "Paltan@2025");
+//	@Autowired
+//	private MockMvc mockMvc;
+//	@MockBean
+//	private ProductService accountService;
+//	@Autowired
+//	private ObjectMapper objectMapper;
+//	Product mockProduct;
+//	@BeforeEach
+//	void setUp() throws ParseException {
+//	
+//		mockProduct.setName("Oppo Mobile");
+//		mockProduct.setDescription("Good Mobile");
+//		mockProduct.setPrice(19999.99);
+//		mockProduct.setStockQuantity(20);
+//		mockProduct.setCategory("Electronics");
+//		mockProduct.setCreatedAt(LocalDateTime.now());
+//		mockProduct.setImages(null);
 //
-//		when(productService.addProduct(any(Product.class))).thenReturn(mockProduct);
-//		mockMvc.perform(post("/wallets/signup").contentType(MediaType.APPLICATION_JSON)
-//				.content(objectMapper.writeValueAsString(mockProduct))).andExpect(status().isOk())
-//				.andExpect(content().string("Successfully registered"));
-//		verify(customerService).signUp(any(Customer.class));
 //	}
+////	@Test
+////	void test() throws JsonProcessingException, Exception {
+////		Product mockProduct = new Product("Shri@2000", "Paltan@2025");
+////
+////		when(productService.addProduct(any(Product.class))).thenReturn(mockProduct);
+////		mockMvc.perform(post("/wallets/signup").contentType(MediaType.APPLICATION_JSON)
+////				.content(objectMapper.writeValueAsString(mockProduct))).andExpect(status().isOk())
+////				.andExpect(content().string("Successfully registered"));
+////		verify(customerService).signUp(any(Customer.class));
+////	}
 }

@@ -1,32 +1,28 @@
 package com.tcs.tcskart.controller;
 
 import java.io.IOException;
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tcs.tcskart.bean.Product;
 import com.tcs.tcskart.service.ProductService;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("api/products")
 public class ProductController {
 
 	private ProductService productService;
@@ -35,58 +31,135 @@ public class ProductController {
 		this.productService = productService;
 	}
 
-	// Add Product with images-9
-	@PostMapping("/")
-	public ResponseEntity<String> addProduct(@RequestPart("product") String productJson,
-			@RequestPart("images") List<MultipartFile> files) throws IOException {
+	@PostMapping("/addProduct")
+	public ResponseEntity<Map<String, Object>> addProduct(@RequestBody Product product) throws IOException {
 
-		Product savedProduct=productService.addProduct(productJson,files);
-		return ResponseEntity.ok("Product "+savedProduct.getId()+ "added successfully with " + files.size() + " images.");
+		Map<String, Object> response = new HashMap<>();
+
+		Product savedProduct = productService.addProduct(product);
+
+		if (savedProduct == null) {
+
+			response.put("status", "error");
+			response.put("message", "Product is empty. error while adding...");
+
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+
+		response.put("status", "success");
+		response.put("message", "Product Added successfully!");
+		response.put("data", product);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+
 	}
-	
 
-	// Get Products-3
-	@GetMapping("/")
-	public ResponseEntity<List<Product>> getAllProducts() {
-		return ResponseEntity.ok((List<Product>) productService.getAllProducts());
+	@GetMapping("/getAllProducts")
+	public ResponseEntity<Map<String, Object>> getAllProducts() {
+
+		List<Product> products = productService.getAllProducts();
+
+		Map<String, Object> response = new HashMap<>();
+
+		if (products == null) {
+			response.put("success", true);
+			response.put("message", "No products Found");
+		}
+
+		else {
+			response.put("success", true);
+			response.put("message", products);
+		}
+
+		return ResponseEntity.ok(response);
 	}
-
 
 	// Update Products-10
-	@PutMapping("/{productId}")
+	@PutMapping("/update/{productId}")
+	public ResponseEntity<Map<String, Object>> updateProductById(@RequestBody Product product) throws IOException {
 
-	public ResponseEntity<String> updateProductById(@PathVariable Long productId, @RequestPart("product") String productJson,
-			@RequestPart(value = "images", required = false) List<MultipartFile> files) throws IOException {
+		Map<String, Object> response = new HashMap<>();
 
-		Product newProductDetails = new ObjectMapper().readValue(productJson, Product.class);
-		productService.updateProductById(productId, newProductDetails, files);
-		return ResponseEntity.ok("Product " + productId + " updated successfully");
+		Product updatedProduct = productService.updateProductById(product);
+
+		if (updatedProduct == null) {
+
+			response.put("status", "error");
+			response.put("message", "Product is empty. error while adding...");
+
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+
+		response.put("status", "success");
+		response.put("message", "Product Added successfully!");
+		response.put("data", updatedProduct);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+
 	}
 
 	// Delete Product by ID-11
-	@DeleteMapping("/{productId}")
-	public ResponseEntity<String> deleteProductById(@PathVariable long productId) {
-		productService.deleteProductById(productId);
-		return ResponseEntity.ok("Product deleted successfully with id = " + productId);
+	@DeleteMapping("/delete/{productId}")
+	public ResponseEntity<Map<String, Object>> deleteProductById(@PathVariable long productId) {
+		boolean deletedProduct = productService.deleteProductById(productId);
+
+		Map<String, Object> response = new HashMap<>();
+
+		if (!deletedProduct) {
+			response.put("success", false);
+			response.put("message", "Product Deletion Failed...");
+		}
+
+		else {
+			response.put("success", true);
+			response.put("message", "Product Deleted Successfully...");
+		}
+
+		return ResponseEntity.ok(response);
+
 	}
 
-	//Get Product By ID-7
-	@GetMapping("/{productId}")
-	public ResponseEntity<Map<String, Object>> getProducById(@PathVariable Long productId, HttpServletRequest request) {
-	   return ResponseEntity.ok(productService.getProductById(productId,request));
+	// Get Product By ID-7
+	@GetMapping("/getProduct/{productId}")
+	public ResponseEntity<Map<String, Object>> getProducById(@PathVariable Long productId) {
+		
+		Optional<Product> product = productService.getProductById(productId);
+
+		Map<String, Object> response = new HashMap<>();
+
+		if (product.isEmpty()) {
+			response.put("success", true);
+			response.put("message", "No Product Found");
+		}
+
+		else {
+			response.put("success", true);
+			response.put("message", product);
+		}
+
+		return ResponseEntity.ok(response);
+
 	}
 
-	// Get Product Image By ID-7
-	@GetMapping("/{productId}/image/{index}")
-	public ResponseEntity<byte[]> getImage(@PathVariable Long productId, @PathVariable int index) {
-		return productService.getProductImageById(productId, index);
-	}
 
-	
-	//Notify admin for low-stock-33
+	// Notify admin for low-stock-33
 	@GetMapping("/low-stock")
-	public ResponseEntity<List<Product>> getLowStockProducts() {
-		return ResponseEntity.ok(productService.getLowStockProducts());
+	public ResponseEntity<Map<String, Object>> getLowStockProducts() {
+		
+		List<Product> product = productService.getLowStockProducts();
+
+		Map<String, Object> response = new HashMap<>();
+
+		if (product.isEmpty()) {
+			response.put("success", true);
+			response.put("message", "No Products are Found with low Stock");
+		}
+
+		else {
+			response.put("success", true);
+			response.put("message", product);
+		}
+
+		return ResponseEntity.ok(response);
+		
 	}
 
 }
